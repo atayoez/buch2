@@ -21,8 +21,6 @@ services:
       POSTGRES_DB: buch
     volumes:
       - buch_pg_data:/var/lib/postgresql
-      # SQL-Skripte, die beim ersten Start in alphabetischer Reihenfolge ausgeführt werden
-      - ./init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: [CMD, pg_isready, --dbname=buch, --username=buch]
       interval: 5s

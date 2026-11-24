@@ -6,7 +6,6 @@ import {
     varchar,
 } from 'drizzle-orm/pg-core'
 
-import { relations } from 'drizzle-orm'
 import { books } from './books.mts'
 
 export const bookDetails = pgTable('book_details', {
@@ -22,13 +21,3 @@ export const bookDetails = pgTable('book_details', {
     isbn: varchar('isbn', { length: 20 }),
     description: text('description'),
 })
-
-export const bookDetailsRelations = relations(
-    bookDetails,
-    ({ one }) => ({
-        book: one(books, {
-            fields: [bookDetails.bookId],
-            references: [books.id],
-        }),
-    }),
-)
