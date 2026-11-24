@@ -9,7 +9,7 @@ import {
 import { books } from './books.mts'
 
 export const bookDetails = pgTable('book_details', {
-    id: serial('id').primaryKey(),
+    id: serial('id').primaryKey().unique().notNull(),
 
     bookId: integer('book_id')
         .notNull()

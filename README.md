@@ -30,6 +30,18 @@ To migrate the database:
 bun run db:migrate
 ```
 
+To seed the database:
+
+```bash
+bun run db:seed
+```
+
+To see the database:
+
+```bash
+bun run db:studio
+```
+
 Run `bun fmt` to format the code.
 
 This project was created using `bun init` in bun v1.4.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
