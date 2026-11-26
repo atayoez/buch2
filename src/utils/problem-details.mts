@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 type ValidationError = {
   issues: {
@@ -9,7 +10,7 @@ type ValidationError = {
 
 export function problemDetails(
   c: Context,
-  status: 400 | 404 | 409 | 412 | 422 | 428 | 500,
+  status: ContentfulStatusCode,
   title: string,
   detail: string,
 ) {

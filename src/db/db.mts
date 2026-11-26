@@ -9,5 +9,10 @@ export const pool = new Pool({
   idleTimeoutMillis: 30000,
 });
 
+// Ohne diesen Listener beendet ein Verbindungsabbruch (z.B. DB-Neustart) den ganzen Server
+pool.on("error", (err) => {
+  console.error("PostgreSQL-Verbindung verloren:", err.message);
+});
+
 // "schema" (Tabellen und Relationen) ist für db.query.<tabelle> erforderlich
 export const db = drizzle(pool, { schema, casing: "snake_case" });
