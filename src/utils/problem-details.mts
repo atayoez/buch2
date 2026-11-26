@@ -11,7 +11,7 @@ export function problemDetails(
   c: Context,
   status: 400 | 404 | 409 | 412 | 422 | 428 | 500,
   title: string,
-  detail: string
+  detail: string,
 ) {
   return c.json(
     {
@@ -24,14 +24,11 @@ export function problemDetails(
     status,
     {
       "Content-Type": "application/problem+json",
-    }
+    },
   );
 }
 
-export function validationProblem(
-  c: Context,
-  error: ValidationError
-) {
+export function validationProblem(c: Context, error: ValidationError) {
   return c.json(
     {
       type: "about:blank",
@@ -47,6 +44,6 @@ export function validationProblem(
     400,
     {
       "Content-Type": "application/problem+json",
-    }
+    },
   );
 }
