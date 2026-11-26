@@ -1,3 +1,5 @@
+// Zod-Schema für den Request-Body beim Login
+
 import { z } from "zod";
 
 // Validierung für den Login mit POST /auth/token

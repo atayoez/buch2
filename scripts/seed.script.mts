@@ -1,3 +1,7 @@
+// Testdaten für die DB: 10 Bücher mit je 1 Datensatz Details (1:1) und 5 Kapiteln (1:N)
+//
+// Start: bun run db:seed
+
 import { sql } from "drizzle-orm";
 import { reset, seed } from "drizzle-seed";
 
@@ -7,6 +11,7 @@ import { chapters } from "../src/db/schemas/chapters.mts";
 
 import { db, pool } from "../src/db/db.mts";
 
+// Tabellen leeren und mit Testdaten füllen
 export const seedDb = async () => {
   // Alle drei Tabellen zurücksetzen
   await reset(db, {
@@ -90,6 +95,7 @@ export const seedDb = async () => {
   console.log(`Chapters: ${bookRows.length * 5}`);
 };
 
+// Skript ausführen: bei einem Fehler Exit-Code 1, am Ende in jedem Fall den Connection Pool schließen
 seedDb()
   .catch((error) => {
     console.error("Database seed failed:", error);

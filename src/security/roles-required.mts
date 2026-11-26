@@ -1,8 +1,11 @@
+// Zugriffsschutz für einzelne Routen anhand der Rollen aus dem Access Token
+
 import { createMiddleware } from "hono/factory";
 
 import { problemDetails } from "../utils/problem-details.mts";
 import { verifyAccessToken } from "./keycloak.mts";
 
+// Der Header hat das Format "Authorization: Bearer <token>"
 const bearerPrefix = "Bearer ";
 
 /**
@@ -15,6 +18,7 @@ export const rolesRequired = (...requiredRoles: string[]) =>
   createMiddleware(async (c, next) => {
     const authorization = c.req.header("Authorization");
 
+    // Kein Header oder falsches Format
     if (!authorization?.startsWith(bearerPrefix)) {
       c.header("WWW-Authenticate", "Bearer");
       return problemDetails(c, 401, "Unauthorized", "Access Token fehlt");
@@ -28,6 +32,7 @@ export const rolesRequired = (...requiredRoles: string[]) =>
       return problemDetails(c, 401, "Unauthorized", "Access Token ist ungültig oder abgelaufen");
     }
 
+    // Der Token ist gültig, aber der User hat keine der verlangten Rollen
     if (!requiredRoles.some((role) => roles.includes(role))) {
       return problemDetails(
         c,
@@ -37,5 +42,6 @@ export const rolesRequired = (...requiredRoles: string[]) =>
       );
     }
 
+    // Alles in Ordnung: weiter zur nächsten Middleware bzw. zum Handler der Route
     await next();
   });
