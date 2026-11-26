@@ -6,11 +6,14 @@ To install dependencies:
 bun install
 ```
 
-To run:
+To run (HTTP/2 with TLS on https://localhost:3000; once before: `bun run tls:generate` for the
+self-signed certificate in `tls/`):
 
 ```bash
-bun run index.ts
+bun run start
 ```
+
+With curl: `curl --http2 -k https://localhost:3000/books`
 
 To start PostgreSQL and Keycloak (once before: `cp .env.example .env`):
 

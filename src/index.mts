@@ -1,3 +1,8 @@
+import { readFile } from "node:fs/promises";
+import { createSecureServer } from "node:http2";
+import process from "node:process";
+
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 
@@ -23,13 +28,38 @@ app.onError((err, c) => {
   return problemDetails(c, 500, "Internal Server Error", "Ein unerwarteter Fehler ist aufgetreten");
 });
 
-// Kein "export default app": Bun würde dafür automatisch einen zweiten Server
-// auf demselben Port starten (EADDRINUSE). Der Server wird nur durch Bun.serve gestartet.
 export const port = 3000;
 
-Bun.serve({
-  fetch: app.fetch,
-  port,
-});
+// HTTP/2 gibt es nur mit TLS: selbst-signiertes Zertifikat, erzeugt durch "bun run tls:generate"
+const tlsDir = new URL("../tls/", import.meta.url);
 
-console.log(`Server läuft auf http://localhost:${port}`);
+const readTlsFile = async (name: string) => {
+  try {
+    return await readFile(new URL(name, tlsDir), { encoding: "utf8" });
+  } catch {
+    console.error(`TLS-Datei tls/${name} fehlt: zuerst "bun run tls:generate" ausführen`);
+    process.exit(1);
+  }
+};
+
+const key = await readTlsFile("key.pem");
+const cert = await readTlsFile("certificate.crt");
+
+// Kein "export default app" und kein Bun.serve: Bun.serve kann nur HTTP/1.1.
+// HTTP/2 durch node:http2, das auch von Bun unterstützt wird.
+serve(
+  {
+    fetch: app.fetch,
+    port,
+    createServer: createSecureServer,
+    serverOptions: {
+      key,
+      cert,
+      // Bruno kann nur HTTP/1.1: https://github.com/usebruno/bruno/issues/1728
+      allowHTTP1: true,
+    },
+  },
+  (info) => {
+    console.log(`Server läuft mit HTTP/2 auf https://localhost:${info.port}`);
+  },
+);

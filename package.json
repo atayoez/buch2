@@ -4,6 +4,9 @@
   "type": "module",
   "module": "index.ts",
   "scripts": {
+    "dev": "bun --watch run src/index.mts",
+    "start": "bun run src/index.mts",
+    "tls:generate": "mkdir -p tls && openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -days 365 -keyout tls/key.pem -out tls/certificate.crt -subj /CN=localhost -addext subjectAltName=DNS:localhost,IP:127.0.0.1",
     "typecheck": "bun check",
     "db:generate:migration": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -15,6 +18,7 @@
     "format:check": "oxfmt --check ."
   },
   "dependencies": {
+    "@hono/node-server": "^2.1.11",
     "@hono/zod-validator": "^0.9.1",
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.21",
