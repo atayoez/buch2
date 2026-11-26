@@ -1,0 +1,35 @@
+info:
+  name: Neues Buch
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{booksUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Neues Buch aus Bruno"
+      }
+  auth:
+    type: bearer
+    token: "{{TOKEN}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.headers.location
+      operator: matches
+      value: \/books\/[1-9]\d*$
+    - expression: res.body.version
+      operator: eq
+      value: "0"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,11 @@
+info:
+  name: 3 Neuanlegen
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit
+
+docs:
+  content: "POST-Requests mit Validierung durch Zod. Geschützt, Rolle admin erforderlich. Vorher 'Token admin' und 'Token user' ausführen."
+  type: text/markdown

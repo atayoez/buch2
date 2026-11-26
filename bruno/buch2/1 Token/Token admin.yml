@@ -1,0 +1,38 @@
+info:
+  name: Token admin
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{tokenUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "admin",
+        "password": "p"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Token für die geschützten Requests merken
+        bru.setVar('TOKEN', res.getBody().access_token);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.access_token
+      operator: matches
+      value: .+\..+\..+
+    - expression: res.body.expires_in
+      operator: eq
+      value: "1800"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

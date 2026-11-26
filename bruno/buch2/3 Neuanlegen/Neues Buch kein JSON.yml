@@ -1,0 +1,30 @@
+info:
+  name: Neues Buch kein JSON
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{booksUrl}}"
+  body:
+    type: json
+    data: |-
+      { kaputt
+  auth:
+    type: bearer
+    token: "{{TOKEN}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.headers['content-type']
+      operator: matches
+      value: ^application\/problem\+json
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,11 @@
+info:
+  name: 4 Ändern
+  type: folder
+  seq: 4
+
+request:
+  auth: inherit
+
+docs:
+  content: "PUT und PATCH mit Validierung durch Zod und If-Match gegen Lost Updates. Vorher 'Token admin' und 'Buch 1 mit Details und Kapiteln' ausführen (TOKEN und ETAG)."
+  type: text/markdown

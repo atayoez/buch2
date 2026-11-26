@@ -1,0 +1,44 @@
+info:
+  name: Buch 1 ändern mit PUT
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{booksUrl}}/:id"
+  headers:
+    - name: If-Match
+      value: '{{ETAG}}'
+  params:
+    - name: id
+      value: "1"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Geändert mit PUT"
+      }
+  auth:
+    type: bearer
+    token: "{{TOKEN}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Neue Versionsnummer für den nächsten Request merken
+        bru.setVar('ETAG', res.getHeader('etag'));
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.title
+      operator: eq
+      value: Geändert mit PUT
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

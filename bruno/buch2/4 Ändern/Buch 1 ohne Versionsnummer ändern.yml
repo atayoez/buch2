@@ -1,0 +1,36 @@
+info:
+  name: Buch 1 ohne Versionsnummer ändern
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{booksUrl}}/:id"
+  params:
+    - name: id
+      value: "1"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Geändert mit PUT"
+      }
+  auth:
+    type: bearer
+    token: "{{TOKEN}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "428"
+    - expression: res.headers['content-type']
+      operator: matches
+      value: ^application\/problem\+json
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

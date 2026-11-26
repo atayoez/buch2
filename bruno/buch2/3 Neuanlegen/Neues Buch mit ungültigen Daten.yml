@@ -1,0 +1,34 @@
+info:
+  name: Neues Buch mit ungültigen Daten
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{booksUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title": ""
+      }
+  auth:
+    type: bearer
+    token: "{{TOKEN}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.headers['content-type']
+      operator: matches
+      value: ^application\/problem\+json
+    - expression: res.body.errors
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

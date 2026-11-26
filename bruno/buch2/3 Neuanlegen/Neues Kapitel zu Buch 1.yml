@@ -1,0 +1,37 @@
+info:
+  name: Neues Kapitel zu Buch 1
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{booksUrl}}/:id/chapters"
+  params:
+    - name: id
+      value: "1"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "chapterNumber": 6,
+        "title": "Anhang"
+      }
+  auth:
+    type: bearer
+    token: "{{TOKEN}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.headers.location
+      operator: matches
+      value: \/books\/1\/chapters\/[1-9]\d*$
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

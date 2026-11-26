@@ -30,6 +30,26 @@ realm `javascript` is imported from `keycloak/javascript-realm.json`: client `ja
 curl -X POST http://localhost:8880/realms/javascript/protocol/openid-connect/token -d grant_type=password -d username=admin -d password=p -d client_id=javascript-client -d client_secret=$(grep -oP '^CLIENT_SECRET=\K.*' .env)
 ```
 
+Security: `POST`, `PUT` and `PATCH` need an access token from Keycloak with the client role
+`admin` in the header `Authorization: Bearer <token>`. `POST /auth/token` with
+`{"username": "admin", "password": "p"}` returns one (user `user` only has the role `user` and
+gets 403).
+
+Requests for Bruno are in `bruno/buch2` (open the folder as a collection, switch off SSL
+verification in the Bruno settings because of the self-signed certificate). Run the folders in
+order: `1 Token` stores the tokens and `2 Suche` stores the ETag that `4 Ändern` sends as
+`If-Match`.
+
+To lint and format:
+
+```bash
+bun run lint
+```
+
+```bash
+bun run format
+```
+
 To type check:
 
 ```bash
@@ -59,7 +79,5 @@ To see the database:
 ```bash
 bun run db:studio
 ```
-
-Run `bun fmt` to format the code.
 
 This project was created using `bun init` in bun v1.4.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.

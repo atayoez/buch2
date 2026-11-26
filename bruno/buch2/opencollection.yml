@@ -1,0 +1,19 @@
+opencollection: 1.0.0
+
+info:
+  name: buch2
+
+request:
+  variables:
+    - name: baseUrl
+      value: https://localhost:3000
+    - name: booksUrl
+      value: "{{baseUrl}}/books"
+    - name: tokenUrl
+      value: "{{baseUrl}}/auth/token"
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

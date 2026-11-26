@@ -1,0 +1,11 @@
+info:
+  name: 2 Suche
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit
+
+docs:
+  content: "GET-Requests mit Pfadparameter und bedingter GET-Request mit If-None-Match"
+  type: text/markdown

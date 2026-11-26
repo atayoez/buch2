@@ -1,0 +1,39 @@
+info:
+  name: Buch 1 mit Details und Kapiteln
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{booksUrl}}/:id"
+  params:
+    - name: id
+      value: "1"
+      type: path
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // ETag (= Versionsnummer) für If-None-Match und If-Match merken
+        bru.setVar('ETAG', res.getHeader('etag'));
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.id
+      operator: eq
+      value: "1"
+    - expression: res.headers.etag
+      operator: matches
+      value: ^"\d+"$
+    - expression: res.body.details.isbn
+      operator: isString
+    - expression: res.body.chapters
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

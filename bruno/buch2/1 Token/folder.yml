@@ -1,0 +1,11 @@
+info:
+  name: 1 Token
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+
+docs:
+  content: "Access Token von Keycloak holen. Zuerst ausführen: die Tokens werden in TOKEN und TOKEN_USER gespeichert."
+  type: text/markdown

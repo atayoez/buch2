@@ -1,0 +1,32 @@
+info:
+  name: Neues Buch als user ohne Rolle admin
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{booksUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Neues Buch aus Bruno"
+      }
+  auth:
+    type: bearer
+    token: "{{TOKEN_USER}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "403"
+    - expression: res.headers['content-type']
+      operator: matches
+      value: ^application\/problem\+json
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

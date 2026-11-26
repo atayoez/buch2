@@ -1,0 +1,29 @@
+info:
+  name: Neues Buch ohne Token
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{booksUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Neues Buch aus Bruno"
+      }
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "401"
+    - expression: res.headers['content-type']
+      operator: matches
+      value: ^application\/problem\+json
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
