@@ -6,6 +6,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 
+import { authRouter } from "./routes/auth.mts";
 import { booksRouter } from "./routes/books.mts";
 import { problemDetails } from "./utils/problem-details.mts";
 
@@ -13,6 +14,9 @@ export const app = new Hono();
 
 // Books-Routen registrieren
 app.route("/books", booksRouter);
+
+// Login: Access Token von Keycloak
+app.route("/auth", authRouter);
 
 // Unbekannte Pfade: Problem Details (RFC 9457) statt Text "404 Not Found"
 app.notFound((c) => problemDetails(c, 404, "Not Found", `Der Pfad ${c.req.path} existiert nicht`));

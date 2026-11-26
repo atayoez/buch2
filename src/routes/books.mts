@@ -14,6 +14,7 @@ import {
   updateBookSchema,
 } from "../schemas/book.schema.ts";
 
+import { rolesRequired } from "../security/roles-required.mts";
 import { validationProblem, problemDetails } from "../utils/problem-details.mts";
 
 export const booksRouter = new Hono();
@@ -67,9 +68,13 @@ booksRouter.get("/:id", async (c) => {
   return c.json(result, 200);
 });
 
+// Alle schreibenden Requests (POST, PUT, PATCH) sind geschützt:
+// Access Token von Keycloak mit der Rolle "admin" erforderlich
+
 // POST: Neues Buch erstellen
 booksRouter.post(
   "/",
+  rolesRequired("admin"),
   zValidator("json", createBookSchema, (result, c) => {
     if (!result.success) {
       return validationProblem(c, result.error);
@@ -98,6 +103,7 @@ booksRouter.post(
 // POST: Kapitel zu einem Buch hinzufügen
 booksRouter.post(
   "/:id/chapters",
+  rolesRequired("admin"),
   zValidator("json", createChapterSchema, (result, c) => {
     if (!result.success) {
       return validationProblem(c, result.error);
@@ -206,6 +212,7 @@ const updateBook = async (c: Context, values: { title?: string | undefined }) =>
 // PUT: Buch vollständig aktualisieren
 booksRouter.put(
   "/:id",
+  rolesRequired("admin"),
   zValidator("json", updateBookSchema, (result, c) => {
     if (!result.success) {
       return validationProblem(c, result.error);
@@ -217,6 +224,7 @@ booksRouter.put(
 // PATCH: Buch teilweise aktualisieren
 booksRouter.patch(
   "/:id",
+  rolesRequired("admin"),
   zValidator("json", patchBookSchema, (result, c) => {
     if (!result.success) {
       return validationProblem(c, result.error);
