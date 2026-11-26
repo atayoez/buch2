@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 
-import booksRouter from "./routes/books.mts";
+import { booksRouter } from "./routes/books.mts";
 import { problemDetails } from "./utils/problem-details.mts";
 
 export const app = new Hono();

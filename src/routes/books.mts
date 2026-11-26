@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { eq, asc, and, sql } from "drizzle-orm";
 import { zValidator } from "@hono/zod-validator";
 
@@ -6,11 +7,16 @@ import { db } from "../db/db.mts";
 import { books } from "../db/schemas/books.mts";
 import { chapters } from "../db/schemas/chapters.mts";
 
-import { createBookSchema, createChapterSchema, updateBookSchema } from "../schemas/book.schema.ts";
+import {
+  createBookSchema,
+  createChapterSchema,
+  patchBookSchema,
+  updateBookSchema,
+} from "../schemas/book.schema.ts";
 
 import { validationProblem, problemDetails } from "../utils/problem-details.mts";
 
-const booksRouter = new Hono();
+export const booksRouter = new Hono();
 
 // GET: Alle Bücher abrufen
 booksRouter.get("/", async (c) => {
@@ -136,6 +142,67 @@ booksRouter.post(
   },
 );
 
+// Gemeinsame Logik für PUT und PATCH: Update nur mit passender Version im Header If-Match
+const updateBook = async (c: Context, values: { title?: string | undefined }) => {
+  const id = Number(c.req.param("id"));
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return problemDetails(c, 400, "Bad Request", "Ungültige Buch-ID");
+  }
+
+  // If-Match auslesen
+  const ifMatch = c.req.header("If-Match");
+
+  if (!ifMatch) {
+    return problemDetails(c, 428, "Precondition Required", "If-Match Header erforderlich");
+  }
+
+  // Aktuellen Datensatz suchen
+  const [existingBook] = await db.select().from(books).where(eq(books.id, id)).limit(1);
+
+  if (!existingBook) {
+    return problemDetails(c, 404, "Not Found", "Buch nicht gefunden");
+  }
+
+  // Erwartete Version überprüfen
+  const expectedEtag = `"${existingBook.version}"`;
+
+  if (ifMatch !== expectedEtag && ifMatch !== "*") {
+    return problemDetails(
+      c,
+      412,
+      "Precondition Failed",
+      "Ressource wurde zwischenzeitlich geändert",
+    );
+  }
+
+  const { title } = values;
+
+  // Atomisches Update mit Versionsprüfung
+  const [updatedBook] = await db
+    .update(books)
+    .set({
+      ...(title !== undefined && { title }),
+      version: sql`${books.version} + 1`,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(books.id, id), eq(books.version, existingBook.version)))
+    .returning();
+
+  if (!updatedBook) {
+    return problemDetails(
+      c,
+      412,
+      "Precondition Failed",
+      "Lost Update verhindert: Version veraltet",
+    );
+  }
+
+  c.header("ETag", `"${updatedBook.version}"`);
+
+  return c.json(updatedBook, 200);
+};
+
 // PUT: Buch vollständig aktualisieren
 booksRouter.put(
   "/:id",
@@ -144,65 +211,16 @@ booksRouter.put(
       return validationProblem(c, result.error);
     }
   }),
-  async (c) => {
-    const id = Number(c.req.param("id"));
-
-    if (!Number.isInteger(id) || id <= 0) {
-      return problemDetails(c, 400, "Bad Request", "Ungültige Buch-ID");
-    }
-
-    const body = c.req.valid("json");
-
-    // If-Match auslesen
-    const ifMatch = c.req.header("If-Match");
-
-    if (!ifMatch) {
-      return problemDetails(c, 428, "Precondition Required", "If-Match Header erforderlich");
-    }
-
-    // Aktuellen Datensatz suchen
-    const [existingBook] = await db.select().from(books).where(eq(books.id, id)).limit(1);
-
-    if (!existingBook) {
-      return problemDetails(c, 404, "Not Found", "Buch nicht gefunden");
-    }
-
-    // Erwartete Version überprüfen
-    const expectedEtag = `"${existingBook.version}"`;
-
-    if (ifMatch !== expectedEtag && ifMatch !== "*") {
-      return problemDetails(
-        c,
-        412,
-        "Precondition Failed",
-        "Ressource wurde zwischenzeitlich geändert",
-      );
-    }
-
-    // Atomisches Update mit Versionsprüfung
-    const [updatedBook] = await db
-      .update(books)
-      .set({
-        title: body.title,
-        version: sql`${books.version} + 1`,
-        updatedAt: new Date(),
-      })
-      .where(and(eq(books.id, id), eq(books.version, existingBook.version)))
-      .returning();
-
-    if (!updatedBook) {
-      return problemDetails(
-        c,
-        412,
-        "Precondition Failed",
-        "Lost Update verhindert: Version veraltet",
-      );
-    }
-
-    c.header("ETag", `"${updatedBook.version}"`);
-
-    return c.json(updatedBook, 200);
-  },
+  (c) => updateBook(c, c.req.valid("json")),
 );
 
-export default booksRouter;
+// PATCH: Buch teilweise aktualisieren
+booksRouter.patch(
+  "/:id",
+  zValidator("json", patchBookSchema, (result, c) => {
+    if (!result.success) {
+      return validationProblem(c, result.error);
+    }
+  }),
+  (c) => updateBook(c, c.req.valid("json")),
+);
