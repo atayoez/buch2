@@ -39,12 +39,8 @@
           "name": "book_details_book_id_books_id_fk",
           "tableFrom": "book_details",
           "tableTo": "books",
-          "columnsFrom": [
-            "book_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["book_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -54,9 +50,7 @@
         "book_details_book_id_unique": {
           "name": "book_details_book_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "book_id"
-          ]
+          "columns": ["book_id"]
         }
       },
       "policies": {},
@@ -130,12 +124,8 @@
           "name": "chapters_book_id_books_id_fk",
           "tableFrom": "chapters",
           "tableTo": "books",
-          "columnsFrom": [
-            "book_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["book_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

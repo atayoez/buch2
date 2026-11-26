@@ -15,6 +15,13 @@
       "when": 1795532238329,
       "tag": "0001_dizzy_ben_grimm",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795704490664,
+      "tag": "0002_mixed_richard_fisk",
+      "breakpoints": true
     }
   ]
 }

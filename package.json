@@ -1,14 +1,23 @@
 {
   "name": "buch2",
-  "module": "index.ts",
-  "type": "module",
   "private": true,
+  "type": "module",
+  "module": "index.ts",
   "scripts": {
     "typecheck": "bun check",
     "db:generate:migration": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "bun run ./scripts/seed.script.mts"
+    "db:seed": "bun run ./scripts/seed.script.mts",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check ."
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.4",
+    "hono": "^4.13.21",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -20,12 +29,5 @@
   },
   "peerDependencies": {
     "typescript": "^7"
-  },
-  "dependencies": {
-    "@hono/zod-validator": "^0.9.1",
-    "drizzle-orm": "^0.45.4",
-    "hono": "^4.13.21",
-    "pg": "^8.23.1",
-    "zod": "^4.6.7"
   }
 }
