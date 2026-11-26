@@ -4,6 +4,7 @@ import {
     integer,
     text,
     varchar,
+    timestamp
 } from 'drizzle-orm/pg-core'
 
 import { books } from './books.mts'
@@ -20,4 +21,5 @@ export const bookDetails = pgTable('book_details', {
 
     isbn: varchar('isbn', { length: 20 }),
     description: text('description'),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
 })

@@ -11,4 +11,5 @@ export const books = pgTable('books', {
     createdAt: timestamp('created_at')
         .defaultNow()
         .notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
 })

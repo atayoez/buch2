@@ -3,6 +3,7 @@ import {
     serial,
     integer,
     text,
+    timestamp
 } from 'drizzle-orm/pg-core'
 
 
@@ -19,4 +20,5 @@ export const chapters = pgTable('chapters', {
 
     chapterNumber: integer('chapter_number').notNull(),
     title: text('title').notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
 })
