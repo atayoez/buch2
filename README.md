@@ -12,6 +12,21 @@ To run:
 bun run index.ts
 ```
 
+To start PostgreSQL and Keycloak (once before: `cp .env.example .env`):
+
+```bash
+docker compose up
+```
+
+Keycloak runs at http://localhost:8880 (admin console: `admin` / `p`). On the first start the
+realm `javascript` is imported from `keycloak/javascript-realm.json`: client `javascript-client`
+(secret = `CLIENT_SECRET` in `.env`), client roles `admin` and `user`, users `admin` and `user`
+(password `p`). To get an access token:
+
+```bash
+curl -X POST http://localhost:8880/realms/javascript/protocol/openid-connect/token -d grant_type=password -d username=admin -d password=p -d client_id=javascript-client -d client_secret=$(grep -oP '^CLIENT_SECRET=\K.*' .env)
+```
+
 To type check:
 
 ```bash

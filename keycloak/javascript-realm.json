@@ -1,0 +1,61 @@
+{
+  "realm": "javascript",
+  "enabled": true,
+  "ssoSessionIdleTimeout": 3600,
+  "accessTokenLifespan": 1800,
+  "accessTokenLifespanForImplicitFlow": 1800,
+  "clients": [
+    {
+      "clientId": "javascript-client",
+      "name": "JavaScript Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true,
+      "rootUrl": "https://localhost:3000",
+      "redirectUris": ["*"],
+      "webOrigins": ["+"]
+    }
+  ],
+  "roles": {
+    "client": {
+      "javascript-client": [{ "name": "admin" }, { "name": "user" }]
+    }
+  },
+  "users": [
+    {
+      "username": "admin",
+      "email": "admin@acme.com",
+      "firstName": "JavaScript",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "p", "temporary": false }],
+      "realmRoles": ["default-roles-javascript"],
+      "clientRoles": {
+        "javascript-client": ["admin"],
+        "realm-management": ["manage-users", "query-users", "realm-admin", "view-users"]
+      }
+    },
+    {
+      "username": "user",
+      "email": "user@acme.com",
+      "firstName": "JavaScript",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "p", "temporary": false }],
+      "realmRoles": ["default-roles-javascript"],
+      "clientRoles": {
+        "javascript-client": ["user"]
+      }
+    }
+  ]
+}

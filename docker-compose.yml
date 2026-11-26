@@ -1,7 +1,8 @@
-# PostgreSQL 18 als Docker Container für die Domäne "Buch".
+# PostgreSQL 18 und Keycloak als Docker Container für die Domäne "Buch".
 #
-#   docker compose up          # starten (beim ersten Start werden die Skripte in ./init ausgeführt)
-#   docker compose down        # stoppen, Daten bleiben im Volume "buch_pg_data"
+#   cp .env.example .env       # einmalig: DATABASE_URL und CLIENT_SECRET
+#   docker compose up          # starten (beim ersten Start importiert Keycloak den Realm aus ./keycloak)
+#   docker compose down        # stoppen, Daten bleiben in den Volumes "buch2_pg_data" und "buch_kc_data"
 #   docker compose down -v     # stoppen und Daten löschen -> nächster Start initialisiert neu
 ---
 services:
@@ -20,7 +21,7 @@ services:
       POSTGRES_PASSWORD: p
       POSTGRES_DB: buch
     volumes:
-      - buch_pg_data:/var/lib/postgresql
+      - buch2_pg_data:/var/lib/postgresql
     healthcheck:
       test: [CMD, pg_isready, --dbname=buch, --username=buch]
       interval: 5s
@@ -29,6 +30,47 @@ services:
       start_period: 5s
     restart: unless-stopped
 
+  keycloak:
+    # https://quay.io/repository/keycloak/keycloak
+    image: quay.io/keycloak/keycloak:26.8.2
+    container_name: buch-keycloak
+    # Development-Modus: HTTP ohne TLS, eingebettete DB im Volume "buch_kc_data".
+    # --import-realm: Realm "javascript" aus ./keycloak importieren, falls er noch nicht existiert
+    # https://www.keycloak.org/server/importExport#_importing_a_realm_during_startup
+    command: [start-dev, --import-realm]
+    ports:
+      # Admin-Konsole und Tokens: http://localhost:8880
+      - published: 8880
+        target: 8080
+    environment:
+      TZ: Europe/Berlin
+      # Administrator für die Admin-Konsole (Realm "master")
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: p
+      KC_HEALTH_ENABLED: true
+      # Platzhalter ${CLIENT_SECRET} in ./keycloak/javascript-realm.json
+      CLIENT_SECRET: ${CLIENT_SECRET:?CLIENT_SECRET fehlt - siehe .env.example}
+    volumes:
+      - buch_kc_data:/opt/keycloak/data
+      # "z" ist für SELinux (Fedora) notwendig und sonst wirkungslos
+      - ./keycloak:/opt/keycloak/data/import:ro,z
+    healthcheck:
+      # Im Image gibt es kein curl: http://localhost:9000/health/ready durch die Bash abfragen
+      test:
+        - CMD-SHELL
+        - |
+          exec 3<>/dev/tcp/127.0.0.1/9000 || exit 1
+          printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3
+          while read -r line <&3; do [[ $$line == *'"UP"'* ]] && exit 0; done
+          exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
 volumes:
-  buch_pg_data:
-    name: buch_pg_data
+  buch2_pg_data:
+    name: buch2_pg_data
+  buch_kc_data:
+    name: buch_kc_data
