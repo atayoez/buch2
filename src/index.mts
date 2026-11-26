@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import booksRouter from "./routes/books.mts";
 
-const app = new Hono();
+export const app = new Hono();
 
 // Books-Routen registrieren
 app.route("/books", booksRouter);
 
-export default app;
-
+// Kein "export default app": Bun würde dafür automatisch einen zweiten Server
+// auf demselben Port starten (EADDRINUSE). Der Server wird nur durch Bun.serve gestartet.
 export const port = 3000;
 
 Bun.serve({

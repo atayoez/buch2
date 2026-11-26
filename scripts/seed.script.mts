@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { reset, seed } from "drizzle-seed";
 
 import { books } from "../src/db/schemas/books.mts";
@@ -19,6 +20,8 @@ export const seedDb = async () => {
     books: {
       count: 10,
       columns: {
+        // Neue Bücher beginnen mit Version 0, statt einer Zufallszahl von drizzle-seed
+        version: funcs.default({ defaultValue: 0 }),
         title: funcs.valuesFromArray({
           values: [
             "Clean Code",
@@ -37,6 +40,12 @@ export const seedDb = async () => {
       },
     },
   }));
+
+  // drizzle-seed fügt die Bücher mit expliziten IDs ein, ohne die Sequenz weiterzuzählen.
+  // Ohne diese Korrektur scheitert der nächste INSERT mit "duplicate key ... books_pkey".
+  await db.execute(
+    sql`select setval(pg_get_serial_sequence('books', 'id'), (select max(id) from books))`,
+  );
 
   // Bücher laden
   const bookRows = await db

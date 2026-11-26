@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { eq, asc, and, sql } from "drizzle-orm";
 import { zValidator } from "@hono/zod-validator";
-import { createHash } from "node:crypto";
 
 import { db } from "../db/db.mts";
 import { books } from "../db/schemas/books.mts";
@@ -43,8 +42,8 @@ booksRouter.get("/:id", async (c) => {
     return problemDetails(c, 404, "Not Found", "Buch nicht gefunden");
   }
 
-  // ETag anhand der Ressourcendaten erzeugen
-  const etag = `"${createHash("sha256").update(JSON.stringify(result)).digest("hex")}"`;
+  // ETag ist die Versionsnummer: derselbe Wert wird bei PUT im Header If-Match erwartet
+  const etag = `"${result.version}"`;
 
   c.header("ETag", etag);
 
